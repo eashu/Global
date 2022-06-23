@@ -1,0 +1,10 @@
+---
+- hosts: opt_check_nagios
+  remote_user: ansibleuser
+  become_user: root
+  become: yes
+  tasks:
+   - name: Add a user to sudoers
+     lineinfile: "dest=/etc/nagios/nrpe.cfg backup=yes insertafter=EOF create=true line='command[check_disk_opt]=/usr/lib64/nagios/plugins/check_disk -w 20% -c 10% -p /opt'"
+   - name: Restart NRPE
+     service: name=nrpe state=restarted

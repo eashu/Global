@@ -1,0 +1,8 @@
+---
+- hosts: prod
+  remote_user: ansibleuser
+  become_user: root
+  become: yes
+  tasks:
+    - name: Install tcpdump package on the remote server
+      yum: name=tcpdump state=present

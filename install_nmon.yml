@@ -1,0 +1,22 @@
+---
+- hosts: dev-user
+  remote_user: ansibleuser
+  become_user: root
+  become: yes
+  tasks:
+    - name: Create a directory for storing nmon files
+      file: path=/tmp/nmon state=directory owner=ansibleuser group=ansibleuser mode=777
+    - name: Wget 1mon14g.c
+      get_url:
+         url: http://ncu.dl.sourceforge.net/project/nmon/lmon14g.c
+         dest: /tmp/nmon
+    - name: Wget makefile for nmon
+      get_url:
+         url: http://ncu.dl.sourceforge.net/project/nmon/makefile
+         dest: /tmp/nmon
+    - name: Install ncurses-devel package
+      yum: name=ncurses-devel state=latest
+    - name: Install nmon
+      shell: chdir=/tmp/nmon mv lmon14g.c lmon.c; make nmon_x86_rhel52
+    - name: mv nmon to /usr/local/sbin
+      shell: chdir=/tmp/nmon mv nmon_x86_rhel52 /usr/local/sbin/nmon

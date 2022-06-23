@@ -1,0 +1,17 @@
+---
+- hosts: uatcl2
+  remote_user: ansibleuser
+  become_user: root
+  become: yes
+  tasks:
+  - user: 
+      name : fmsteam
+      state: absent
+      remove: yes
+#      with_items:
+#          - snagendra
+#          - vshetty        
+#          web_serv_acc
+#webteam
+#puneteam
+#fmsteam    

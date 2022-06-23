@@ -1,0 +1,14 @@
+---
+- hosts: devcluster1_network
+  remote_user: ansibleuser
+  become_user: root
+  become: yes
+  tasks:
+   - name: Add a line at the end of the file
+     lineinfile: "dest=/etc/nagios/nrpe.cfg  backup=yes insertafter=EOF create=true line='command[network_data_transmit_rate]=/usr/lib64/nagios/plugins/check_traffic.sh 1500 2000 tx'" 
+   - name: Add a line at the end of the file
+     lineinfile: "dest=/etc/nagios/nrpe.cfg  backup=yes insertafter=EOF create=true line='command[network_data_receive_rate]=/usr/lib64/nagios/plugins/check_traffic.sh 1500 2000 rx'"
+   - name: Copy the trafic.sh file 
+     copy: src=/rjio-ansible/General-playbooks/check_traffic.sh dest=/usr/lib64/nagios/plugins/ owner=root group=root mode=0755
+   - name: restart nrpe
+     service: name=nrpe state=restarted enabled=yes

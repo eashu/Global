@@ -1,0 +1,24 @@
+---
+- hosts: mongo
+  remote_user: ansibleuser
+  become_user: root
+  become: yes
+  tasks:
+  - name: Install MongoDB repository
+    template: src=templates/mongo_repo.j2 dest=/etc/yum.repos.d/mongodb-org-3.0.repo
+  - name: Install mongoDB server on the destination server
+    yum: state=present name={{ item }}
+    with_items:
+       - mongodb-org-3.0.12
+       - mongodb-org-server-3.0.12
+       - mongodb-org-shell-3.0.12
+       - mongodb-org-mongos-3.0.12
+       - mongodb-org-tools-3.0.12
+  - name: Create the dbPath directory /opt/mongo
+    file: path=/opt/mongo state=directory owner=mongod group=mongod mode=0755
+  - name: Deploy the mongo configuration file
+    template: src=templates/mongo_config.j2 dest=/etc/mongod.conf
+    notify: restart mongo
+  handlers:
+     - name: restart mongo
+       service: name=mongod state=started enabled=yes

@@ -1,0 +1,31 @@
+---
+- hosts: nagios
+  remote_user: ansibleuser
+  become: yes
+  tasks:
+    - name: Push configuration code block to hosts.cfg
+      blockinfile:
+            dest: /tmp/services_devcluster1_network.cfg
+#            dest: /etc/nagios/objects/services_qa.cfg
+            insertafter: BOF
+            backup: yes
+            state: present
+            block: |
+                define service{
+                use                             generic-service
+                host_name                       {{ item }}
+                service_description             Network Data Transmit Rate
+                check_command                   network_data_transmit_rate
+                contact_groups                   admins,client
+                notifications_enabled           1
+                }               
+                define service{
+                use                             generic-service
+                host_name                       {{ item }}
+                service_description             Network Data Receive Rate
+                check_command                   network_data_receive_rate
+                notifications_enabled           1
+                contact_groups                   admins,client
+                }
+            marker: "# {mark} ANISBLE MANAGED BLOCK {{item}}"
+      with_items: "{{ groups['devcluster1_network'] }}"

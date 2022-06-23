@@ -1,0 +1,42 @@
+---
+- hosts: nagios
+  remote_user: ansibleuser
+  become: yes
+  tasks:
+    - name: Push configuration code block to hosts.cfg
+      blockinfile:
+            dest: /tmp/hosts_8Nov.cfg
+            insertafter: BOF
+            backup: yes
+            state: present
+            block: |
+               define service{
+               use                             local-service,srv-pnp
+               host_name                       rjio-prod-redis
+               service_description             Redis Clients
+               check_command                   check_redis_new!6000!"1,2"!"80,90"!blocked_clients,connected_clients!50,~!100,~
+               contact_groups                   admins,client,managers
+               }
+               define service{
+               use                             local-service,srv-pnp
+               host_name                       rjio-prod-redis
+               service_description             Redis Total Connections
+               check_command                   check_redis_new!6000!"1,2"!"80,90"!used_cpu_user,total_connections_received,total_commands_processed,evicted_keys,total_keys,expired_keys,connected_slaves,used_cpu_sys_children!,,,,,,,!,,,,,,,
+              contact_groups                   admins,client,managers
+              }
+              define service{
+              use                             local-service,srv-pnp
+              host_name                       rjio-prod-redis
+              service_description             Redis Keyspace
+              check_command                   check_redis_new!6000!"1,2"!"80,90"!"--keyspace_misses=WARN:80%,CRIT:90%,PERF:YES"
+              contact_groups                   admins,client,managers
+              }
+              define service{
+              use                             local-service,srv-pnp
+              host_name                       rjio-prod-redis
+              service_description             Redis Data
+              check_command                   check_redis_new!6000!"1,2"!"80,90"!total_expires,used_memory_rss,used_cpu_sys!1000,,!2000,,
+              contact_groups                   admins,client,managers
+              }
+            marker: "# {mark} ANISBLE MANAGED BLOCK {{item}}"
+      with_items: "{{ groups['uat2'] }}"

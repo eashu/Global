@@ -1,0 +1,33 @@
+---
+- hosts: "{{ variable_host  }}"
+  remote_user: ansibleuser
+  become_user: root
+  become: yes
+  vars:
+    broker_id: 1
+    listeners: "PLAINTEXT://0.0.0.0:9092"
+    advertised_hostname: "PLAINTEXT://rjio-uat-Kafka:9092"
+    log_dirs: "/opt/kafka/log/kafka_instance10"
+    retention_hours: "48" 
+    zookeeperIP_port: "localhost:2181"
+  tasks:
+  - name: Create /opt/kafka directory
+    file: path=/opt/kafka state=directory
+  - name: Copy the Kafka tar gz from ansible server to the kafka server and unarchive
+    unarchive: src=kafka_2.11-0.10.0.1.tgz dest=/opt/kafka owner=root group=root
+  - name: Move the Kafka directory and change ownership
+    command: mv /opt/kafka/kafka_2.11-0.10.0.1 /opt/kafka/kafka_instance10
+  - name: Deploy Kafka configuration file
+    template: src=templates/kafka10.j2 dest=/opt/kafka/kafka_instance10/config/server.properties
+    notify:
+      - kill kafka
+      - restart kafka
+  - name: Record the PID of kafka if already running
+    shell: ps -eaf | grep kafka | grep -v grep| awk -F" " '{ print $2 }'
+    register: oput_var
+  handlers:
+    - name: kill kafka
+      command: kill -9 {{ oput_var.stdout }}
+      ignore_errors: True
+    - name: restart kafka
+      shell: nohup sh /opt/kafka/kafka_instance1/bin/kafka-server-start.sh /opt/kafka/kafka_instance1/config/server.properties &

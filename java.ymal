@@ -1,0 +1,19 @@
+---
+- hosts: java
+  remote_user: ansibleuser
+  sudo: yes
+  tasks:
+#  - name: Download Java
+#    command: wget --no-check-certificate --no-cookies --header "Cookie:oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz
+
+  - name: Unpack archive
+    unarchive: src=/home/ansibleuser/jdk-8u131-linux-x64.tar.gz dest=/home/ansibleuser
+
+  - name: Fix ownership
+    file: state=directory path=/home/ansibleuser/jdk1.8.0_131 owner=root group=root recurse=yes
+
+  - name: Make Java available for system
+    command: 'alternatives --install "/usr/bin/java" "java" "/home/ansibleuser/jdk1.8.0_131/bin/java" 2000'
+
+  - name: Clean up
+    file: state=absent path=/home/ansibleuser/jdk-8u131-linux-x64.tar.gz

@@ -1,0 +1,16 @@
+---
+- hosts: hdfscon
+  remote_user: ansibleuser
+  become_user: root
+  become: yes
+  serial: 1
+  tasks:
+   - name: Creates directory
+     file: path=/opt/log_backups state=directory mode=0755
+#   - name: Cleanup directory
+#     shell: chdir=/opt/log_backups rm -rf *
+#    - name: wait for  tomcat if running
+   - wait_for:
+       path: /opt/log_backups
+       delay: 20
+

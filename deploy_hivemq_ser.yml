@@ -1,0 +1,10 @@
+---
+- hosts: hivemq
+  remote_user: ansibleuser
+  become: yes
+  become_user: root
+  tasks:
+  - name: Copy the hivemq service check script to the destination server
+    copy: src=check_hivemq_ser.sh dest=/usr/lib64/nagios/plugins owner=root group=root mode=0755
+  - name: Add a line to nrpe.cfg
+    

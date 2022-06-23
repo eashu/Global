@@ -1,0 +1,17 @@
+---
+- hosts: 10.17.19.149
+  remote_user: ansibleuser
+  become_user: root
+  become: yes
+  tasks:
+    - name: Copy nmon files to destination servers
+      copy: src=nmon dest=/home/ansibleuser
+    - name: Install ncurses-devel package
+      yum: name={{item}} state=latest
+      with_items:
+         - ncurses-devel
+         - gcc
+    - name: Install nmon
+      shell: chdir=/home/ansibleuser/nmon mv lmon14g.c lmon.c; make nmon_x86_rhel52
+    - name: mv nmon to /usr/local/sbin
+      shell: chdir=/home/ansibleuser/nmon mv nmon_x86_rhel52 /usr/local/sbin/nmon

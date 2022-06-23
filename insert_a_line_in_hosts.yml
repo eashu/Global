@@ -1,0 +1,12 @@
+---
+- hosts: rjio-dev-test
+  remote_user: ansibleuser
+  become: yes
+  vars:
+     ssh_key: "dc1platformteam  ALL=(ALL)   NOPASSWD: ALL"
+  tasks:
+  - name: add a new string at the end of the file
+    lineinfile: dest=/etc/sudoers
+                backup=yes
+                insertafter=EOF
+                line={{ ssh_key }}

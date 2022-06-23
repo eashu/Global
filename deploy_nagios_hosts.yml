@@ -1,0 +1,21 @@
+---
+- hosts: nagios
+  remote_user: ansibleuser
+  become: yes
+  tasks:
+    - name: Push configuration code block to hosts.cfg
+      blockinfile:
+#            dest: /tmp/demo.cfg
+            dest: /etc/nagios/objects/hosts.cfg
+            insertafter: BOF
+            backup: yes
+            state: present
+            block: |
+               define host{
+               use                     linux-server,host-pnp
+               host_name               {{ item }}
+               alias                   {{ item }}
+               address                 {{ item }}
+               }
+            marker: "# {mark} ANISBLE MANAGED BLOCK {{item}}"
+      with_items: "{{ groups ['Newlyadded_uatcl2'] }}"

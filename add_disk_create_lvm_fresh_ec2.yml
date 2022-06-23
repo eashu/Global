@@ -1,0 +1,52 @@
+---
+- hosts: testh
+  remote_user: ansibleuser
+  become_user: root
+  become: yes
+  tasks:
+  - name: get Availability zone of instance
+    shell: curl http://169.254.169.254/latest/meta-data/placement/availability-zone
+    register: az
+  - name: get instance id of server
+    shell: curl http://169.254.169.254/latest/meta-data/instance-id
+    register: instance_id 
+  - name: get hostname of instance
+    shell: hostname
+    register: Hostname
+  - name: Create new ebs volume and attach to instance
+    ec2_vol: 
+      aws_access_key: AKIAIMBABH4J6E3GPF4Q
+      aws_secret_key: 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
+      instance: "{{ instance_id.stdout }}"
+      availability_zone: "{{ az.stdout }}"
+      region: us-east-1
+      volume_size: "{{ size }}" 
+      volume_type: gp2
+      device_name: /dev/xvdb
+      delete_on_termination: no
+      tags:
+        environment: devcluster1 
+        name: "{{ Hostname.stdout }}"
+  - name: create vg using new ebs disk 
+    lvg: 
+      vg: opt_vg
+      pvs: /dev/xvdb
+      state: present
+  - name: create lv from opt_vg vg
+    lvol:
+      vg: opt_vg
+      lv: opt_LV
+      size: 100%FREE
+  - name: apply filesystem on lv
+    filesystem:
+      fstype: ext4
+      dev: /dev/mapper/opt_vg-opt_LV
+  - name: create new mount point 
+    file: path=/opt state=directory
+  - name: mount newly created lv on mount point
+    mount:  
+      path: /opt
+      src: /dev/mapper/opt_vg-opt_LV
+      fstype: ext4
+      state: mounted
+

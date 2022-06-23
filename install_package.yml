@@ -1,0 +1,9 @@
+---
+- hosts: api_dev
+  remote_user: ansibleuser
+  become: yes
+  become_user: root
+  serial: 1
+  tasks:
+    - name: Install package
+      yum: name=sysstat state=present 

@@ -1,0 +1,8 @@
+---
+- hosts: d2h2
+  remote_user: ansibleuser
+  become_user: root
+  become: yes
+  tasks:
+   - name: Add a user to sudoers
+     lineinfile: "dest=/etc/hosts backup=yes insertafter=EOF create=true line='10.16.40.85    rjio-devcluster2-kafka3'"

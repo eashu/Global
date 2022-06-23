@@ -1,0 +1,22 @@
+---
+- hosts: nagios
+  remote_user: ansibleuser
+  become: yes
+  tasks:
+    - name: Push configuration code block to hosts.cfg
+      blockinfile:
+            dest: /tmp/services_app.cfg
+#            dest: /etc/nagios/objects/services_qa.cfg
+            insertafter: BOF
+            backup: yes
+            state: present
+            block: |
+                define service{
+                use                             local-service
+                host_name                       {{ item }}
+                service_description             HiveMQ Service
+                check_command                   check_hivemq_ser
+                contact_groups                  admins,client,managers
+                }
+            marker: "# {mark} ANISBLE MANAGED BLOCK {{item}}"
+      with_items: "{{ groups['nag_14feb'] }}"

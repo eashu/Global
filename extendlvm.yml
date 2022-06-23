@@ -1,0 +1,10 @@
+---
+ - hosts: postgres-test
+   sudo: yes
+   tasks:
+   - name: Create Volume Group opt_vg
+     lvg: vg=opt_vg1 pvs=/dev/xvdf state=present
+   - name: Create a Logical Volume on opt_vg1
+     lvol: vg=opt_vg1 lv=opt_LV size=100%FREE
+#   - name: Create a filesystem on the logical volume
+ #    filesystem: fstype=ext4 dev=/dev/mapper/opt_vg-opt_LV

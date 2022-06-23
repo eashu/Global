@@ -1,0 +1,9 @@
+---
+- hosts: devcluster1_kafka
+  remote_user: ansibleuser
+  become_user: root
+  become: yes
+  tasks: 
+  - name: install kafka 2.3.0 on kafka server
+    command: chdir=/opt  wget http://mirrors.estointernet.in/apache/kafka/2.3.0/kafka_2.12-2.3.0.tgz
+

@@ -1,0 +1,28 @@
+---
+- hosts: elk
+  remote_user: ansibleuser
+  become_user: root
+  become: yes
+  serial: 1
+  vars: 
+   path1: "/opt/hivemq-3.3.3/log/hivemq.log"
+   document_type: "hivemqlog"
+  tasks: 
+   - name: Copy Jinja template of filebeat.j2
+     template: 
+      src: /rjio-ansible/General-playbooks/template/filebeat.j2
+      dest: /etc/filebeat/filebeat.yml
+      mode: 0755
+      owner: root
+      group: root 
+     notify: 
+     - restart filebeat
+   - name: ensure filebeat running
+     service:
+       name: filebeat
+       state: started
+  handlers:
+   - name: restart filebeat
+     service:
+       name: filebeat
+       state: restarted

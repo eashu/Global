@@ -1,0 +1,51 @@
+---
+- hosts: sl-st-dev
+  remote_user: ansibleuser
+  become_user: root
+  become: yes
+  tasks:
+  - name: Create users on dev servers
+    user: name={{item}}
+#    user: name=sysmonroot
+    with_items:
+#       - qateam
+#       - igniteteam
+#      - fmsteam
+#       - zakeer
+#       - analyticsteam
+#       - platformteam
+#       - dc1platformteam
+##       - ayakimov
+#        - uatcl1
+#       - sysmonroot
+#       - platformteam22aug
+#       - portalteam
+#        - sluser        
+#       - Paritosh
+#       - Karthik
+#       - Sushil
+#       - Mahendra
+#       - Oleg
+#       - Artur
+#       - SergeyC
+#       - SergeyT
+#       - Alexander
+#       - Alexey
+#       - Pramod
+#       - Siddarth
+#       - Puja
+#       - Shiva
+#       - Ibarhim
+#       - Sanjay
+#       - Kavitha
+#       - Gowri
+#       - Srikanth
+#       - Dipak 
+#       - Deepak
+#       - AnatoliyF
+#       - AlpeshC
+#       - PerlaR
+#       - KishorP
+#       - DeepakR
+#       - KushP
+       - SudattaD

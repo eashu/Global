@@ -1,0 +1,20 @@
+---
+ - hosts:  mongoConn2
+   remote_user: ansibleuser
+   become_user: root
+   become: yes
+   tasks:
+   - name: Create Volume Group opt_vg
+     lvg: vg=opt_vg pvs=/dev/xvdb state=present
+   - name: Create a Logical Volume on opt_vg
+     lvol: vg=opt_vg lv=opt_LV size=100%FREE
+   - name: Create a filesystem on the logical volume
+     filesystem: fstype=ext4 dev=/dev/mapper/opt_vg-opt_LV
+#   - name: Take backup of the existing opt
+ #    shell: chdir=/ mv opt opt_orig
+   - name: Create the /opt mountpoint
+     file: path=/rjio-data state=directory
+   - name: mount the LVM onto /rjio-data
+     mount: name=/rjio-data src=/dev/mapper/opt_vg-opt_LV fstype=ext4 state=mounted
+#   - name: Copy /opt_orig/aws to /opt/aws
+ #    shell: chdir=/ cp -r opt_orig/aws* opt

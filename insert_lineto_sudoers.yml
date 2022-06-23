@@ -1,0 +1,9 @@
+---
+- hosts: api_dev
+  remote_user: ansibleuser
+  become_user: root
+  become: yes
+  tasks:
+   - name: Add a user to sudoers
+     lineinfile: "dest=/etc/sudoers backup=yes insertafter=EOF create=true line='KishorP        ALL=(ALL)       NOPASSWD: ALL'"
+

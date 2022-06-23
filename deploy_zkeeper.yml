@@ -1,0 +1,31 @@
+---
+- hosts: "{{ variable_host  }}"
+  remote_user: ansibleuser
+  become_user: root
+  become: yes
+  vars:
+    data_dir: "/opt/zookeeper/data/zookeeper1"
+    data_logdir: "/opt/zookeeper/log/zookeeper1"
+    client_port: 2181
+  tasks:
+  - name: Create the /opt/zookeeper directory
+    file: path=/opt/zookeeper state=directory
+  - name: Copy the Zookeeper tar gz from ansible server to the kafka server and unarchive
+    unarchive: src=zookeeper-3.4.8.tar.gz dest=/opt/zookeeper owner=root group=root
+  - name: Move the Zookeeper directory and change ownership
+    command: mv /opt/zookeeper/zookeeper-3.4.8 /opt/zookeeper/zookeeper_instance1
+  - name: Deploy Zookeper configuration file
+    template: src=templates/zookeeper.j2 dest=/opt/zookeeper/zookeeper_instance1/conf/zoo.cfg
+    notify:
+      - kill zookeeper
+      - restart zookeeper
+  - name: Record the PID of zookeeper if already running
+    shell: ps -eaf | grep zookeeper | grep -v grep| awk -F" " '{ print $2 }'
+    register: out_var
+  handlers:
+    - name: kill zookeeper
+      command: kill -9 {{ out_var.stdout }}
+      ignore_errors: True
+    - name: restart zookeeper
+      shell: nohup sh /opt/zookeeper/zookeeper_instance1/bin/zkServer.sh start /opt/zookeeper/zookeeper_instance1/conf/zoo.cfg &
+         

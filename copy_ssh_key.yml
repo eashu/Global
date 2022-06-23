@@ -1,0 +1,29 @@
+---
+- hosts: sl-st-dev 
+  remote_user: ansibleuser
+  become: yes
+  become_user: KushP
+  vars:
+     ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDjCMVqY8taGdQ+QxDNQg5ki0SBqCzDYCSAfaBBCH1WZjLnzc1A8Gq4xit8UR27eYzVR/dTuRZ8MJMdWOQ5aLx2VVXmTZ6r9dh3YbKmurEADP6SX+DQ8LcYHrcoRMPC6W9lPa4BZ3KxqxdDdpBLcDxk3p5rSUqqq+Wc2OR6/1RPiL2IWFVH2uasE3m8+Wy40EYTXjEe58Ch10wwyt5+m0GFYYy3UtmaQtoxzYJOuWQh+wuLMHyrMuKJhmerdYOIJGsSerjIHWySdk3bxqSzYiVxeKz/fc9e1ogedbhiSTKtoNFTsvpQ5+8S9fVlddh9GPhYx2Rk8HJgfOCFufBWr3R/ KushP@rjio-ss-jumpbox"
+  tasks:
+  - name: Check if .ssh file exists on the remote server
+    shell: chdir=~ mkdir .ssh
+    args:
+      creates: .ssh
+    register: mkdir_output
+  - name: Change .ssh permissions to 700
+    file:
+      path: ~/.ssh
+      mode: 0700
+    when: mkdir_output.changed
+  - name: Check if authorized_keys exists or not
+    stat: path=~/.ssh/authorized_keys
+    register: file_exists
+  - name: Create the authorized_keys file 
+    file: path=~/.ssh/authorized_keys state=touch mode=0600
+    when: file_exists.stat.exists == false
+  - name: add a new string at the end of the file
+    lineinfile: dest=~/.ssh/authorized_keys
+                backup=yes
+                insertafter=EOF
+                line={{ ssh_key }}
